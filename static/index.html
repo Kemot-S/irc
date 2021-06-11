@@ -1,0 +1,282 @@
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US"> 
+<head profile="http://gmpg.org/xfn/11"> 
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- emotes -->
+	<link href="stylesheets/jquery.cssemoticons.css" media="screen" rel="stylesheet" type="text/css" />
+	<script src="emotes/jquery-1.4.2.min.js" type="text/javascript"></script>
+	<script src="emotes/jquery.cssemoticons.min.js" type="text/javascript"></script>
+    <!-- scrollbar -->
+	<script src="http://code.jquery.com/jquery-1.9.0.min.js"></script>
+	
+    <script src="jquery.js"></script>
+    <script src="scripts/jquery.tinyscrollbar.min.js"></script>
+	<script>
+        $(document).ready(function(){
+            // define scrollbars
+            $(".scrollbar").tinyscrollbar({
+                prefix: "",
+                updateTime: 200
+            });
+            // update block when changed
+            // accepts 1 param:
+            // - 'top' (if none) or 'bottom';
+            // - 'relative' sets the position of the scrollbar relative to the old content when new content is passed in;
+            // - integer, to move to a certain location in the content.
+            // $(".scrollbar").tinyscrollbar_update();
+        });
+    </script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/jquery.tinyscrollbar.css" media="all" />
+    <link rel="stylesheet" href="./stylesheets/style.css">
+	<style type="text/css">
+		/* #main { height: 460px; margin: 0 auto; width: 460px;}
+        #main1 { height: 200px; margin: 0 auto; width: 700px;}*/
+		.ui-corner-all { border-radius: 4px;} 
+	</style>
+
+	<script type="text/javascript">
+        function emoticonize(){
+            $(document).ready(function(){
+                $('.text').emoticonize({
+                    //delay: 800,
+                    //animate: false,
+                    //exclude: 'pre, code, .no-emoticons'
+                });
+                $('#toggle-headline').toggle(
+                    function(){
+                        $('#large').unemoticonize({
+                            //delay: 800,
+                            //animate: false
+                        })
+                    }, 
+                    function(){
+                        $('#large').emoticonize({
+                            //delay: 800,
+                            //animate: false
+                        })
+                    }
+                );
+            })
+        }
+	</script>
+	
+	<style type="text/css">
+		#small { font-size: 8px; }
+		#large { font-size: 72px; }
+		#regular { font-size: 20px; }
+		.wrapped { width: 350px; }
+	</style>
+</head>
+<body>
+ 
+    <div id="main1" class="scrollbar"></div>
+
+
+    <input type="text" placeholder="Enter text" >
+    <button onclick="commands(document.querySelector('input').value)">send</button>
+    
+    <script>
+
+
+var poll = function () {
+    $.ajax({
+       url: "/poll",
+       success: function(data){
+           console.log(data); // { text: "Some data" } -> will be printed in your browser console every 5 seconds
+           let dane = data.split(' ')
+
+           let message = document.createElement('div');
+                let username = document.createElement('div');
+
+                username.setAttribute('id','regular');
+                username.innerHTML = ('</br><b>'+ dane[0] + ' &#10148 </b>');
+                username.style.display = 'inline';
+                username.style.color = dane[1];
+
+                message.setAttribute('class','text');
+                message.setAttribute('id','regular');
+                message.style.display = 'inline'
+
+                // message.innerHTML = ('</br><b>'+ nickname + ' &#10148 </b>');
+                message.innerText = dane[2];
+                message.style.color = dane[3];
+                // document.getElementById('main1').appendChild(message)
+                document.getElementById('main1').children[1].children[0].appendChild(username)
+                document.getElementById('main1').children[1].children[0].appendChild(message)
+
+
+                //wysłanie na serwer
+                // let naSerwa = nickname + ' ' +  userColor + ' ' + info + ' ' + textColor;
+                // fetchdata('byczeq', naSerwa)
+
+                emoticonize()
+
+                oScrollbar1.tinyscrollbar_update();  
+
+
+           poll();
+       },
+       error: function() {
+           poll();
+       },
+       timeout: 30000 // 30 seconds
+    });
+};
+ 
+// Make sure to call it once first,
+poll();
+                    // const formData = {
+                    // dogName: "Byron",
+                    // dogBreed: "Poodle"
+                    // };
+
+                    // const configObj = {
+                    // method: "POST",
+                    // headers: {
+                    //     "Content-Type": "application/json",
+                    //     "Accept": "application/json"
+                    // },
+                    // body: JSON.stringify(formData),
+                    // };
+                    // // console.log(configObj['body'])
+
+                    // fetch("byczeq", configObj)
+                    // .then(function(response) {
+                    //     return response.json();
+                    // })
+                    // .then(function(object) {
+                    //     console.log(object);
+                    // });
+
+        async function fetchdata(url,info) {
+            const configObj = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(info)
+                    };
+            // let info1 = JSON.parse(info)
+                    // console.log(info)
+
+            const response = await fetch(url,configObj);
+            // console.log(response)
+            // fetchdata('byczeq')
+        // waits until the request completes...
+            const data = await response.json()
+            console.log(data)
+            // return data;
+
+        }
+        // fetchdata('byczeq','alfaromeo')//.then(console.log)
+
+        document.getElementById('main1').setAttribute('class','scrollbar ' + 'casual');
+
+        var oScrollbar1 = $('.scrollbar');
+        // oScrollbar1.tinyscrollbar();
+
+        let randNum = Math.floor(Math.random() * 10000)+1;
+        var nickname = 'user'+randNum;
+        var textColor = 'black';
+        var userColor = 'black';
+
+
+        function commands(info){
+            // let info = document.getElementById("input").value;
+            if(info.charAt(0)=='/'){
+                let arr = info.split('');
+                arr.shift();
+                let command = arr.join('');
+                let comm_tab = command.split(' ')
+                console.log(command);
+
+                if(comm_tab[0] == 'textColor' && comm_tab[1] != null){
+                    // let div = document.getElementById('tekst');
+                    // div.style.color = comm_tab[1];
+                    textColor = comm_tab[1];
+                    // document.getElementById('tekst').innerHTML += ('</br>zmieniono kolor czatu na: ' + comm_tab[1]);
+                    let message = document.createElement('div');
+                    message.setAttribute('class','text');
+                    message.setAttribute('id','regular');
+                    message.innerHTML = ('</br>zmieniono kolor czatu na: ' + comm_tab[1]);
+                    message.style.color = 'grey';
+                    document.getElementById('main1').children[1].children[0].appendChild(message);
+                    oScrollbar1.tinyscrollbar_update();  
+                }
+                if(comm_tab[0] == 'color' && comm_tab[1] != null){
+                    // let div = document.getElementById('tekst');
+                    // div.style.color = comm_tab[1];
+                    userColor = comm_tab[1];
+                    // document.getElementById('tekst').innerHTML += ('</br>zmieniono kolor czatu na: ' + comm_tab[1]);
+                    let message = document.createElement('div');
+                    message.setAttribute('class','text');
+                    message.setAttribute('id','regular');
+                    message.innerHTML = ('</br>zmieniono kolor nicku na: ' + comm_tab[1]);
+                    message.style.color = 'grey';
+                    document.getElementById('main1').children[1].children[0].appendChild(message);
+                    oScrollbar1.tinyscrollbar_update();  
+                }
+                if(comm_tab[0] == 'nick' && comm_tab[1] != null){
+                    nickname = comm_tab[1];
+                    // document.getElementById('tekst').innerHTML += ('</br>zmieniono nickname na: ' + comm_tab[1]);
+                    let message = document.createElement('div');
+                    message.setAttribute('class','text');
+                    message.setAttribute('id','regular');
+                    message.innerHTML = ('</br>zmieniono nickname na: ' + comm_tab[1]);
+                    message.style.color = 'grey';
+                    document.getElementById('main1').children[1].children[0].appendChild(message);
+                    oScrollbar1.tinyscrollbar_update();  
+                }
+                if(comm_tab[0] == 'theme' && comm_tab[1] != null){
+                    let div = document.getElementById('main1');
+                    div.setAttribute('class','scrollbar ' + comm_tab[1])
+
+                }
+                if(comm_tab[0] == 'help'){
+                    let message = document.createElement('div');
+                    message.setAttribute('class','text');
+                    message.setAttribute('id','regular');
+                    message.innerHTML = ('</br>/help - pomoc</br>/nick - zmiana pseudonimu</br>/theme - zmiana motywu (dark, light, regular)</br>/color - zmiana koloru pseudonimu</br>/textColor - zmiana koloru tekstu');
+                    message.style.color = 'grey';
+                    document.getElementById('main1').children[1].children[0].appendChild(message);
+
+                }
+            }
+            else{
+                // document.getElementById('tekst').innerHTML += ('</br><b>'+ nickname + ' &#10148 </b>' + document.getElementById("input").value);
+                let message = document.createElement('div');
+                let username = document.createElement('div');
+
+                username.setAttribute('id','regular');
+                username.innerHTML = ('</br><b>'+ nickname + ' &#10148 </b>');
+                username.style.display = 'inline';
+                username.style.color = userColor;
+
+                message.setAttribute('class','text');
+                message.setAttribute('id','regular');
+                message.style.display = 'inline'
+
+                // message.innerHTML = ('</br><b>'+ nickname + ' &#10148 </b>');
+                message.innerText += info;
+                message.style.color = textColor;
+                // document.getElementById('main1').appendChild(message)
+                document.getElementById('main1').children[1].children[0].appendChild(username)
+                document.getElementById('main1').children[1].children[0].appendChild(message)
+
+
+                //wysłanie na serwer
+                let naSerwa = nickname + ' ' +  userColor + ' ' + info + ' ' + textColor;
+                fetchdata('byczeq', naSerwa)
+
+                emoticonize()
+
+                oScrollbar1.tinyscrollbar_update();     
+            }
+
+
+
+            // https://mansfeld.pl/webdesign/znaki-specjalne-html-symbole-encje-unicode/        stronka z encjami
+        }
+
+    </script>
+</body> 
